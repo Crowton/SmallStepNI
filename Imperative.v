@@ -108,6 +108,20 @@ Notation "'〈' c ',' st '〉'" := (Config c st) (at level 0).
 
 Reserved Notation "cfg '⇒' cfg'" (at level 40).
 
+Definition cmd_of cfg := 
+  match cfg with
+    | Config c _ => c
+  end.
+
+Definition state_of cfg :=
+  match cfg with
+    | Config _ m => m
+  end.
+
+Definition is_stop cfg := cmd_of cfg = STOP.
+Definition is_not_stop cfg := cmd_of cfg <> STOP.
+
+
 Inductive step : config -> config -> Prop :=
   | step_skip : forall st, 
       〈 SKIP, st 〉 ⇒ 〈 STOP, st 〉

@@ -12,6 +12,10 @@ Require Import BridgeTactics.
 Require Import BridgeProperties.
 Require Import HighPCSteps.
 
+(* TODO:
+Definition NI_idx_cfg (n: nat) : Prop :=
+*)
+
 
 Definition NI_idx (n: nat): Prop :=
   forall Γ pc c,
