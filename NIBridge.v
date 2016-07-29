@@ -13,14 +13,6 @@ Require Import BridgeProperties.
 Require Import HighPCSteps.
 
 
-
-
-
-
-
-
-
-
 Definition NI_idx (n: nat): Prop :=
   forall Γ pc c,
     -{ Γ, pc ⊢ c }- ->
@@ -47,16 +39,17 @@ Proof.
 
     Case "T_Skip".
     {
-       repeat match goal
-             with
-               | [ H : context [bridge_step_num] |- _ ] =>
-                 apply skip_bridge_properties in H
-       end;
-       crush.
+      forwards H_a: skip_bridge_properties H_m.
+      forwards H_b: skip_bridge_properties H'_s.
+      destructs H_a.
+      destructs H_b.
+      subst.
+      splits *.
     }
     Case "T_Assign".
     {
       (* clean up; gathering what we know about assignments *)
+      
       repeat
         (match goal with
              | [ H: context [bridge_step_num] |- _ ] =>
@@ -64,29 +57,24 @@ Proof.
              |  [ H: Γ x = Some ?U, H' : Γ x = Some ?V |- _ ] =>
                 (assert (U = V) by congruence; subst; clear H)
          end).
-
-      repeat match goal with
-        | [  H:  {{Γ ⊢ e : ℓ}},
-                 _ : eval e m ?X1,
-                     _ : eval e s ?X2,
-                         _ : Γ x = Some ?ℓ'
-             |- _] =>
-          (* this case considers the main reasoning :
-             - low-equivalences, memory updates, ni for expressions
-           *)
-          ( assert (val_low_eq ℓ' X1 X2) as LE
-              by (apply low_eq_flowsto with ℓ; auto; apply ni_exp with Γ m s e; auto);
-            apply leq_updates with ( ℓ := ℓ') (x:= x) (u := X1) ( v:= X2) in leq; auto;
-            repeat (split; auto);
-            clear H
-          )
-        | [ H: val_low_eq ?ℓ' _ _  |- _] =>
-          (* secondary clauses about event equivalence; mechanical *)
-            destruct ℓ'; inversion H; subst;
-              assert (Low ⊑ Low) by constructor;
-              assert ( ~ High ⊑ Low) by (unfold not; intros H''; inversion H'');
-              repeat specialize_gen; subst; auto; clear H
+      
+      (* use NI for expressions *)
+      forwards* low_eq: ni_exp.
+      match goal with
+          [ _ : Γ x = Some ?ℓ' |- _ ] =>
+          (forwards* LE : low_eq_flowsto __ ℓ' low_eq;
+           clear low_eq;
+           rename ℓ' into ℓ_x)
       end.
+      forwards* st_eq: leq_updates.
+        
+      splits *; (* the main goal is in the hypothesis by now *)
+        (* these take care of the last two technical goals *)
+        clear st_eq;
+        assert (Low ⊑ Low) by auto;
+        assert ( ~ High ⊑ Low) by  (unfold not; intros H''; inversion H'');
+        destruct ℓ_x; inverts* LE; 
+        repeat specialize_gen; subst*.
     }
     Case "T_Seq".
     {
