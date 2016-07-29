@@ -16,6 +16,8 @@ Require Import WellFormedness LowEq.
 Require Import InductionPrinciple.
 Require Import UtilTactics.
 
+Ltac invert_low_event:=
+        match goal with [ H: context [low_event _ _ EmptyEvent] |- _ ] => inversion H end.
 
 Ltac invert_low_steps :=
   repeat
@@ -46,6 +48,9 @@ Ltac stop_contradiction:=
           assert (is_stop_config 〈STOP, M 〉) by ( exists M; crush);
           contradiction
     end.
+
+
+
 
 Ltac prove_is_not_stop_config:=
   unfold is_not_stop_config;

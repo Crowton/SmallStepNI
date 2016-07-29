@@ -137,11 +137,11 @@ Proof.
   intros Γ n; induction n.
   {
     intros.
-    match goal with | [ H : context [bridge_step_num] |- _ ] => inversion H end.
-    invert_low_steps.
-    invert_high_steps.
-    repeat (split; auto).
-    omega.
+    invert_bridge_step_num.
+    - invert_low_steps.
+    - invert_high_steps.
+      splits~ .
+    - omega.
   }
   (* inductive case *)
   {
@@ -171,7 +171,7 @@ Proof.
   inversion H; [ invert_low_steps | invert_high_steps | omega ]; split; auto;
   repeat
     match goal with
-      | [ H: context [step] |- _ ] => (inversion H; subst; clear H )
+      | [ H: context [step] |- _ ] => (inverts  H;  clear H )
       | [ H: Γ x = Some ?L, H': eval _ _ ?V |- exists _ _, _] =>
         (exists V L)
       | [ _ : eval ?E ?M ?V1, H' : eval ?E ?M ?V2 |- _ ] =>

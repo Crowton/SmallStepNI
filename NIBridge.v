@@ -78,14 +78,7 @@ Proof.
     }
     Case "T_Seq".
     {
-      apply seq_comp_bridge_property in H_m.
-      apply seq_comp_bridge_property in H'_s.
-
-      super_destruct.
-      (* the above destruct gives us four cases; only one is possible *)
-
       (* auxiliary Ltac to apply the IH *)
-
       Ltac apply_seq_comp_base_IH c1 m s IH leq:=
           match goal with
             | [ H : 〈c1, m 〉 ⇨+/(SL, ?Γ , ?ev1, _) 〈?C1, ?M 〉,
@@ -93,33 +86,30 @@ Proof.
               => specialize (IH m s ev1 ev2 C1 C2 M S n' leq H H_alt)
           end.
 
-      (* we now consider the four cases mentioned above *)
-      {
-        (* this is the only possible case, we get it from the IH *)
+      
+      apply seq_comp_bridge_property in H_m.
+      apply seq_comp_bridge_property in H'_s.
+
+      super_destruct; try (solve [omega]).
+      (* the above destruct gives us four cases; two are discharged by
+         omega; of the remaining two only one is possible *)
+
+      - (* this is the only possible case, we get it from the IH *)
+
         apply_seq_comp_base_IH c1 m s IHcmd_has_type1 leq.
         super_destruct;
-          repeat (split; auto).
-        compare x STOP;intros;
-        repeat (specialize_gen; subst); auto.
-      }
-      {
-        (* impossible *)
-        assert False by omega; contradiction.
-      }
-      {
-        (* impossible after applying the IH because ev1 is low?  *)
+          (splits ~) ;
+          compare x STOP;intros; 
+          repeat (specialize_gens).
+        
+      - (* impossible after applying the IH because ev1 is low?  *)
         apply_seq_comp_base_IH c1 m s IHcmd_has_type1 leq.
-
         super_destruct.
-        specialize_gen.
-        subst.
-        match goal with [ H: context [low_event _ _ EmptyEvent] |- _ ] => inversion H end.
+        specialize_gens.
+        invert_low_event.
+        
       }
-      {
-        (* impossible *)
-        assert False by omega; contradiction.
-      }
-    }
+
 
     (* neither if or while are possible in base case
        we use the following auxiliary ltac to discharge the goals *)
@@ -158,7 +148,7 @@ Proof.
       (* impossible *)
       inversion H_m.
       invert_high_steps.
-      intros.
+      intros. 
       stop_contradiction.
     }
     Case "T_Assign".
@@ -185,9 +175,9 @@ Proof.
         (* LL *)
         apply_seq_comp_base_IH c1  m s IHH_wt1 leq.
         super_destruct;
-          repeat (split; auto).
+          repeat (split~).
         compare x STOP; intros;
-        repeat (specialize_gen; subst); auto.
+        repeat (specialize_gens).
         (* TODO: this boilerplate is similar to the LL case in the base case of the proof; consider
            generalizing; 2016-07-25; aa *)
       }
@@ -208,12 +198,12 @@ Ltac apply_seq_comp_ind_IH H c1 H_leq:=
 
       {
         (* RL *)
-        (* impossible - show via applying outer IH *)
+        (* impossible - show via applying the outer IH *)
         apply_seq_comp_ind_IH H c1 leq.
         super_destruct.
         match goal with [ H: context [ _ <-> _ ] |- _ ] => destruct H end.
         specialize_gen.
-        match goal with [H : low_event _ _ EmptyEvent |- _ ] => inversion H end.
+        invert_low_event.
       }
       {
         (* LR *)
