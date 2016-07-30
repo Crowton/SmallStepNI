@@ -362,3 +362,4 @@ Definition config_low_eq (Γ:typenv) cfg cfg' :=
     | Config c m, Config c' m' => c = c' /\ state_low_eq Γ m m'
   end.
 
+Hint Unfold config_low_eq.

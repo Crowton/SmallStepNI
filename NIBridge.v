@@ -12,11 +12,9 @@ Require Import BridgeTactics.
 Require Import BridgeProperties.
 Require Import HighPCSteps.
 
-(* TODO:
-Definition NI_idx_cfg (n: nat) : Prop :=
-*)
+(* TODO: move these to LowEq? *)
 
-
+        
 Definition NI_idx (n: nat): Prop :=
   forall Γ pc c,
     -{ Γ, pc ⊢ c }- ->
@@ -27,6 +25,7 @@ Definition NI_idx (n: nat): Prop :=
       state_low_eq Γ m2 s2 /\ c2 = d2 /\
       (low_event Γ Low ev1 <-> low_event Γ Low ev2)
       /\  (low_event Γ Low ev1 -> ev1 = ev2).
+
 
 
 
@@ -123,7 +122,7 @@ Proof.
       repeat match goal with
         | [ H : context [low_event_step] |- _ ] => invert_low_steps
         | [ H : context [high_event_step] |- _] => (invert_high_steps; subst)
-        | [ H: context [is_stop_config] |-  _ ] => (unfold is_stop_config in H; destruct H)
+        | [ H: context [is_stop] |-  _ ] => (do 2 unfolds in H; inverts * H)
         | [ H : 〈 _, _  〉 = 〈STOP, _ 〉 |- _] => (inversion H ; contradiction)
         | [ H : 0 >= 1 |- _ ] => omega
       end.
@@ -152,15 +151,15 @@ Proof.
       (* impossible *)
       inversion H_m.
       invert_high_steps.
-      intros. 
-      stop_contradiction.
+      intros.
+      stop_contradiction_alt.
     }
     Case "T_Assign".
     {
       (* impossible *)
       inversion H_m.
       invert_high_steps.
-      stop_contradiction.
+      stop_contradiction_alt.
     }
     Case "T_Seq".
     {
