@@ -155,6 +155,19 @@ Qed.
 
 (* liftings of preservation to various relations. *)
 
+
+Lemma event_step_inversion:
+  forall Γ ev cfg cfg',
+    event_step Γ ev cfg cfg' ->
+    step cfg cfg'.
+Proof.
+  intros.
+  dependent induction H; auto; repeat (constructor; auto).
+
+Qed.    
+
+Hint Rewrite event_step_inversion.
+
 Lemma preservation_evt_cfg:
   forall Γ evt pc cfg cfg',
   ={ Γ, pc ⊢ cfg }= ->
@@ -162,7 +175,11 @@ Lemma preservation_evt_cfg:
   ={ Γ, pc ⊢ cfg'}= .
 
 Proof.
-  Admitted. (* XXX *)
+  intros.
+  forwards* : event_step_inversion.
+  applys* preservation_cfg.
+Qed.
+
 
 Lemma preservation_event_step:
   forall Γ e c m c' m' pc,
@@ -172,20 +189,7 @@ Lemma preservation_event_step:
     wf_mem m' Γ /\ ( c' <> STOP -> -{Γ, pc ⊢ c'}- ).
 Proof.
   intros.
-  dependent induction H0; subst;
-  try
-    match goal with
-      | [ H : 〈?C, ?M 〉 ⇒ 〈?C', ?M' 〉, H': wf_mem ?M Γ |- _ ] =>
-        apply preservation with (c := C) (m := M); auto
-    end.
-  {
-    inversion H; subst.
-    repeat specialize_gen; crush; constructor;crush.
-  }
-  {
-    specialize (IHevent_step STOP m').
-    inversion H.
-    crush.
-  }
-
+  forwards * : preservation_evt_cfg.
+  unfolds.
+  split *.
 Qed.
