@@ -75,14 +75,15 @@ Proof.
 
     assert (k1 <= n) as H_k1 by omega.
 
-    replace n1 with (S (n1 - 1)) in * by (inverts* H_bridge_IH1; omega ).
+    (* replace n1 with (S (n1 - 1)) in * by (inverts* H_bridge_IH1; omega ).
     replace n2 with (S (n2 - 1)) in * by (inverts* H_bridge_IH2; omega ).
+     *)
+    
+    lets NI_bridge: ni_bridge_num n1; unfold NI_idx in NI_bridge.
 
-    lets NI_bridge: ni_bridge_num (n1 -1); unfold NI_idx in NI_bridge.
 
 
-
-    specializes~ NI_bridge (>>Γ c m s ev1  c1  m' s' (n2 - 1) ___).
+    specializes~ NI_bridge (>>Γ c m s ev1  c1  m' s' n2 ___).
 
 
     forwards* (? & ?H_wt'): preservation_bridge.
