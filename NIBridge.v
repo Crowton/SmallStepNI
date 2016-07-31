@@ -14,7 +14,6 @@ Require Import HighPCSteps.
 
 
 
-
 Definition NI_idx (n: nat): Prop :=
   forall Γ pc c,
     -{ Γ, pc ⊢ c }- ->
@@ -52,11 +51,7 @@ Proof.
     Case "T_Assign".
     {
       (* clean up; gathering what we know about assignments *)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
       repeat
         (match goal with
              | [ H: context [bridge_step_num] |- _ ] =>
@@ -64,11 +59,7 @@ Proof.
              |  [ H: Γ x = Some ?U, H' : Γ x = Some ?V |- _ ] =>
                 (assert (U = V) by congruence; subst; clear H)
          end).
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
       (* use NI for expressions *)
       forwards* low_eq: ni_exp.
       match goal with
@@ -78,21 +69,13 @@ Proof.
            rename ℓ' into ℓ_x)
       end.
       forwards* st_eq: leq_updates.
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
       splits *; (* the main goal is in the hypothesis by now *)
         (* these take care of the last two technical goals *)
         clear st_eq;
         assert (Low ⊑ Low) by auto;
         assert ( ~ High ⊑ Low) by  (unfold not; intros H''; inversion H'');
-<<<<<<< HEAD
         destruct ℓ_x; inverts* LE;
-=======
-        destruct ℓ_x; inverts* LE;
->>>>>>> master
         repeat specialize_gen; subst*.
     }
     Case "T_Seq".
@@ -105,11 +88,7 @@ Proof.
               => specialize (IH m s ev1 ev2 C1 C2 M S n' leq H H_alt)
           end.
 
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
       apply seq_comp_bridge_property in H_m.
       apply seq_comp_bridge_property in H'_s.
 
@@ -122,25 +101,15 @@ Proof.
         apply_seq_comp_base_IH c1 m s IHcmd_has_type1 leq.
         super_destruct;
           (splits ~) ;
-<<<<<<< HEAD
           compare x STOP;intros;
           repeat (specialize_gens).
 
-=======
-          compare x STOP;intros;
-          repeat (specialize_gens).
-
->>>>>>> master
       - (* impossible after applying the IH because ev1 is low?  *)
         apply_seq_comp_base_IH c1 m s IHcmd_has_type1 leq.
         super_destruct.
         specialize_gens.
         invert_low_event.
-<<<<<<< HEAD
 
-=======
-
->>>>>>> master
       }
 
 
